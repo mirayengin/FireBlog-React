@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,9 +8,13 @@ import IconButton from '@mui/material/IconButton';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
+import { IsLogin, singOut } from '../helpers/firebase';
+import {  useNavigate } from 'react-router-dom';
 
 const NavbarComp = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [nowUser, setNowUSer] = useState();
+  const navigate = useNavigate()
 
 
   const handleMenu = (event) => {
@@ -20,6 +24,34 @@ const NavbarComp = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+  
+    IsLogin(setNowUSer);
+  }, []);
+
+  const handleLogin = () => {
+    navigate("/")
+    handleClose()
+  };
+
+  const handleLogout = () => {
+    singOut(setNowUSer)
+    handleClose()
+    navigate("/")
+  }
+  const handleNewPost = () => {
+    
+    handleClose()
+  }
+  const handleProfile = () => {
+    
+    handleClose()
+  }
+
+
+
+
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -57,9 +89,11 @@ const NavbarComp = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleProfile}>Profile</MenuItem>
+                <MenuItem onClick={handleNewPost}>New Post</MenuItem>
+                {nowUser && <MenuItem onClick={handleLogout}>Logout</MenuItem>}
+                {!nowUser && <MenuItem onClick={handleLogin}>Login</MenuItem>}
+              
               </Menu>
             </div>
           )}

@@ -26,7 +26,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { async } from "@firebase/util";
+// import { async } from "@firebase/util";
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -47,7 +47,7 @@ const provider = new GoogleAuthProvider();
 
 //! database connetct functions
 
-export const useContactListener = (setBlogList) => {
+export const useBlogListListener = (setBlogList) => {
   useEffect(() => {
     onSnapshot(contactRef, (snapshot) => {
       setBlogList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
@@ -67,18 +67,17 @@ export const getDataById = async (id) => {
   }
 };
 
-export const editContact = ({ id, name, phone, gender }, setEdit) => {
+export const editBlog = () => {
   try {
-    const docRef = doc(db, "contact", id);
-    updateDoc(docRef, { name, phone, gender });
-    setEdit(false);
+    // const docRef = doc(db, "users", id);
+    // updateDoc(docRef, {  });
     toastSuccessNotify("Updated Successfully!");
   } catch (error) {
     toastWarnNotify(error.message);
   }
 };
 
-export const deleteContact = (id) => {
+export const deleteBlog = (id) => {
   try {
     deleteDoc(doc(db, "contact", id));
     toastErrorNotify("Deleted Successfully");
@@ -87,7 +86,7 @@ export const deleteContact = (id) => {
   }
 };
 
-export const addContactItem = (addContact) => {
+export const addBlogItem = (addContact) => {
   try {
     addDoc(contactRef, { ...addContact });
     toastSuccessNotify("Added Successfully!");
@@ -145,15 +144,15 @@ export const LoginWithMail = ({ email, password }, navigate) => {
     });
 };
 
-export const IsLogin = (setUser, setRefresh) => {
+export const IsLogin = (setNowUSer) => {
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // eslint-disable-next-line
       const uid = user.uid;
       console.log(user.email);
-      setUser({ email: user.email });
-      setRefresh(true);
+      setNowUSer({name:user.displayName, email:user.email})
+
     } else {
     }
   });
@@ -188,12 +187,11 @@ export const LoginWithGoogle = (navigate) => {
     });
 };
 
-export const singOut = (dispatch, clearUser, clearFavoriteList) => {
+export const singOut = (setNowUSer) => {
   const auth = getAuth();
   signOut(auth)
     .then(() => {
-      dispatch(clearUser());
-      dispatch(clearFavoriteList());
+      setNowUSer(auth)
     })
     .catch((error) => {
       // An error happened.
