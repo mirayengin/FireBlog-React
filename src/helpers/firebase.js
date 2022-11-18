@@ -47,16 +47,19 @@ const contactRef = collection(db, "users");
 
 //! DATABASE FUNCTİON
 
-export const useContactListener = (setContactList) => {
+export const useContactListener = (setCBlogList) => {
   useEffect(() => {
     onSnapshot(contactRef, (snapshot) => {
-      setContactList(
+      setCBlogList(
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
       );
       //console.log(snapshot.docs.map((doc) => doc.data()));
     });
   }, []);
 };
+
+
+
 
 export const editContact = ({ id, name, phone, gender }, setEdit) => {
   try {
@@ -90,35 +93,35 @@ export const addContactItem = (addContact) => {
 
 //! ERİŞİM İZNİ FUNCTİON
 
-export const createUserWithMail = ({ username, email, password }, navigate) => {
+export const createUserWithMail = async({ username, email, password }, navigate) => {
   console.log(username);
   createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // eslint-disable-next-line
-      const user = userCredential.user;
-      user.displayName = user;
-      navigate("/");
-    })
-    .catch((error) => {
-      // eslint-disable-next-line
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(errorMessage);
-      // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
-    });
+    // .then((userCredential) => {
+    //   // eslint-disable-next-line
+    //   const user = userCredential.user;
+    //   user.displayName = user;
+    // })
+    // .catch((error) => {
+    //   // eslint-disable-next-line
+    //   const errorCode = error.code;
+    //   const errorMessage = error.message;
+    //   console.log(errorMessage);
+    //   // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
+    // });
   
     updateProfile(auth.currentUser, {
       displayName: username,
     })
-      .then(() => {
-        // Profile updated!
-        // ...
-      })
-      .catch((error) => {
-        // An error occurred
-        // ...
-      });
-};
+      // .then(() => {
+      //   // Profile updated!
+      //   // ...
+      // })
+      // .catch((error) => {
+        //   // An error occurred
+        //   // ...
+        // });
+        navigate("/");
+      };
 
 export const LoginWithMail = (
   { email, password }, navigate
