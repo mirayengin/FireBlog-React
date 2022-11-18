@@ -9,8 +9,8 @@ import { useLocation, useParams } from "react-router-dom";
 import { editBlog, getDataById, IsLogin } from "../helpers/firebase";
 
 const CartDetail = () => {
-  const [nowUser, setNowUSer] = React.useState();
-  const [data, setData] = React.useState();
+  const [nowUser, setNowUSer] = React.useState(null);
+  const [data, setData] = React.useState("");
 
   //   const {
   //     state: { date, email, id, name, picture, title },
@@ -20,18 +20,14 @@ const CartDetail = () => {
     const newData = await getDataById(id);
     setData(newData);
   };
+
   React.useEffect(() => {
     getData();
     IsLogin(setNowUSer);
   }, []);
-  console.log(data);
-
   const editThisBlog = () => {
-    editBlog()
-
-  }
-
-
+    // editBlog()
+  };
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -48,11 +44,15 @@ const CartDetail = () => {
           {data?.title}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {data?.data}
+          {data?.date}
         </Typography>
       </CardContent>
       <CardActions>
-        {data.email === nowUser.email && <Button size="small" onClick={editThisBlog} >EDİT</Button>}
+        {data?.email === nowUser?.email && (
+          <Button size="small" onClick={editThisBlog}>
+            Edit
+          </Button>
+        )}
       </CardActions>
     </Card>
   );

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import BlogCard from "../components/BlogCard";
-import {useBlogListListener } from "../helpers/firebase";
+import { useBlogListListener } from "../helpers/firebase";
 
 const Dashboard = () => {
   const [blogList, setBlogList] = useState([]);
+
   useBlogListListener(setBlogList);
   return (
     <div sx={{ display: "flex", flexWrap: "wrap" }}>

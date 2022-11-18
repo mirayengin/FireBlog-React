@@ -26,7 +26,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-// import { async } from "@firebase/util";
+
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -70,7 +70,7 @@ export const getDataById = async (id) => {
 export const editBlog = () => {
   try {
     // const docRef = doc(db, "users", id);
-    // updateDoc(docRef, {  });
+    // updateDoc(docRef, { name, phone, gender });
     toastSuccessNotify("Updated Successfully!");
   } catch (error) {
     toastWarnNotify(error.message);
@@ -79,16 +79,22 @@ export const editBlog = () => {
 
 export const deleteBlog = (id) => {
   try {
-    deleteDoc(doc(db, "contact", id));
+    deleteDoc(doc(db, "users", id));
     toastErrorNotify("Deleted Successfully");
   } catch (error) {
     toastWarnNotify(error.message);
   }
 };
 
-export const addBlogItem = (addContact) => {
+export const addBloggItem = ({ title, picture }, { name, email }) => {
   try {
-    addDoc(contactRef, { ...addContact });
+    addDoc(contactRef, {
+      title,
+      picture,
+      date: new Date().getFullYear(),
+      name,
+      email,
+    });
     toastSuccessNotify("Added Successfully!");
     console.log("çalıştı");
   } catch (error) {
@@ -150,9 +156,7 @@ export const IsLogin = (setNowUSer) => {
     if (user) {
       // eslint-disable-next-line
       const uid = user.uid;
-      console.log(user.email);
-      setNowUSer({name:user.displayName, email:user.email})
-
+      setNowUSer({ name: user.displayName, email: user.email });
     } else {
     }
   });
@@ -191,7 +195,7 @@ export const singOut = (setNowUSer) => {
   const auth = getAuth();
   signOut(auth)
     .then(() => {
-      setNowUSer(auth)
+      setNowUSer(null);
     })
     .catch((error) => {
       // An error happened.
