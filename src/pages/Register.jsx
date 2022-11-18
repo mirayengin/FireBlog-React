@@ -8,10 +8,9 @@ import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { Link, useNavigate } from "react-router-dom";
 import { Box, Button, TextField } from "@mui/material";
-import { createUserWithMail } from "../helpers/firebase";
 
-// import { useEffect } from "react";
-// import { toastErrorNotify, toastSuccessNotify } from "../helpers/toastNotify";
+import { toastErrorNotify, toastSuccessNotify } from "../helpers/toastNotify";
+import { createUserWithMail } from "../helpers/firebase";
 const registerSchema = yup.object().shape({
   email: yup
     .string()
@@ -19,33 +18,25 @@ const registerSchema = yup.object().shape({
     .required("Please enter an email"),
   password: yup
     .string()
-    .min(4, "Password must have min 8 chars")
+    .min(8, "Password must have min 8 chars")
     .max(16, "Password must have max 16 chars")
     .required("Please enter a password")
     .matches(/\d+/, "Password must have a number")
     .matches(/[a-z]+/, "Password must have a lowercase")
     .matches(/[A-Z]+/, "Password must have a uppercase")
     .matches(/[!,?{}><%&$#£+-.]+/, "Password must have a special chars"),
-  username: yup
-    .string()
-    // .min(8, "User Name must have min 8 chars")
-    // .max(16, "User Name must have max 16 chars")
-    .required("Please enter a User Name"),
-    // .matches(/[a-z]+/, "User Name must have a lowercase")
-    // .matches(/[A-Z]+/, "User Name must have a uppercase"),
+  username: yup.string().required("Please enter a User Name"),
+
   first_name: yup.string().required("Please enter a First Name"),
   last_name: yup.string().required("Please enter a Last Name"),
 });
 const Register = () => {
   const navigate = useNavigate();
-
   const handleCreate = (e, values) => {
-    e.preventDefault()
+    e.preventDefault();
     console.log(values);
-    createUserWithMail(values ,navigate)
- }
-
-
+    createUserWithMail(values, navigate);
+  };
 
   return (
     <Container maxWidth="lg">
@@ -106,7 +97,7 @@ const Register = () => {
               errors,
               touched,
             }) => (
-              <Form onSubmit={(e) => handleCreate(e,values) }>
+              <Form onSubmit={(e) => handleCreate(e, values)}>
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 2 }}
                   color="secondary"
@@ -184,10 +175,10 @@ const Register = () => {
                     helperText={touched.password2 && errors.password2}
                   />
                   <Button
-                    onClick={(e) => handleCreate(e,values)} 
                     type="submit"
                     loadingPosition="center"
                     variant="contained"
+                    onClick={(e) => handleCreate(e, values)}
                   >
                     Submit
                   </Button>

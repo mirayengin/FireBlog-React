@@ -9,8 +9,7 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { Form, Formik } from "formik";
 import { LoginWithGoogle, LoginWithMail } from "../helpers/firebase";
@@ -28,8 +27,7 @@ const loginSchema = yup.object().shape({
     .matches(/\d+/, "please enter a number")
     .matches(/[!,?{}><%&$#£+-.]+/, " Password must have a special char")
     .matches(/[a-z]+/, "Password must have a lowercase")
-    .matches(/[A-Z]+/, "Password must have an uppercase")
-    .required("please enter an password..."),
+    .matches(/[A-Z]+/, "Password must have an uppercase"),
 });
 
 function Copyright(props) {
@@ -52,19 +50,13 @@ function Copyright(props) {
 
 const Login = () => {
   const navigate = useNavigate();
-
   const loginGoogle = () => {
-    LoginWithGoogle(navigate)
-  }
-
-  const loginApp = (e,values) => {
-    e.preventDefault()
-    LoginWithMail(values, navigate)
-  }
-
-
-
-
+    LoginWithGoogle(navigate);
+  };
+  const loginApp = (e, values) => {
+    e.preventDefault();
+    LoginWithMail(values, navigate);
+  };
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -85,7 +77,7 @@ const Login = () => {
           touched,
           errors,
         }) => (
-          <Form onSubmit={(e) => loginApp(e,values)}>
+          <Form onSubmit={(e) => loginApp(e, values)}>
             <Box
               sx={{
                 marginTop: 8,
@@ -138,18 +130,18 @@ const Login = () => {
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
-                  onSubmit={loginApp}
+                  onClick={(e) => loginApp(e, values)}
                 >
                   Sign In
                 </Button>
                 <Button
-                  onClick={(e) => loginApp(e,values)}
                   type="button"
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
+                  onClick={loginGoogle}
                 >
-                 GOOGLE İLE GİRİS
+                  Continue with Google
                 </Button>
                 <Grid container>
                   <Grid item xs></Grid>
@@ -161,11 +153,11 @@ const Login = () => {
         )}
       </Formik>
       <Link to="" variant="body2">
-        Don't have an account? Sign Up
-      </Link>
+        Forgot password?
+      </Link>{" "}
       <br />
       <Link to="" variant="body2">
-        Forgot password?
+        {"Don't have an account? Sign Up"}
       </Link>
       <Copyright sx={{ mt: 8, mb: 4 }} />
     </Container>

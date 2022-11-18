@@ -1,17 +1,12 @@
-import React from 'react';
-import { ToastContainer } from 'react-toastify';
-import './App.css';
-import AppRouter from './appRouter/AppRouter';
-// import NavbarComp from './components/Navbar';
-// import Login from './pages/Login';
+import React from "react";
+import AppRouter from "./appRouter/AppRouter";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <div className="App">
-      <ToastContainer/>
-      {/* <NavbarComp/> */}
-        <AppRouter/>
-
+      <AppRouter />
+      <ToastContainer />
     </div>
   );
 }

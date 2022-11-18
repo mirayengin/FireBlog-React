@@ -1,3 +1,20 @@
+// Import the functions you need from the SDKs you needimport { initializeApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  addDoc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import { useEffect } from "react";
+import {
+  toastErrorNotify,
+  toastSuccessNotify,
+  toastWarnNotify,
+} from "./toastNotify";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -9,57 +26,46 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-
-import {
-  getFirestore,
-  collection,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  addDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { useEffect } from "react";
-import {
-  toastErrorNotify,
-  toastSuccessNotify,
-  toastWarnNotify,
-} from "./toastNotify";
-
-// Your web app's Firebase configuration
+import { async } from "@firebase/util";
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTHDOMAIN,
-  projectId: process.env.REACT_APP_PROJECTID,
-  storageBucket: process.env.REACT_APP_STOTAGEBUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGINGSENDERID,
-  appId: process.env.REACT_APP_APPID,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_APP_MESSENGER,
+  appId: process.env.REACT_APP_APP_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
 export const db = getFirestore(app);
 const contactRef = collection(db, "users");
 
-//! DATABASE FUNCTİON
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-export const useContactListener = (setCBlogList) => {
+//! database connetct functions
+
+export const useContactListener = (setBlogList) => {
   useEffect(() => {
     onSnapshot(contactRef, (snapshot) => {
-      setCBlogList(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      setBlogList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       //console.log(snapshot.docs.map((doc) => doc.data()));
     });
   }, []);
 };
+export const getDataById = async (id) => {
+  const docRef = doc(db, "users", id);
+  const docSnap = await getDoc(docRef);
 
-
-
+  if (docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    // doc.data() will be undefined in this case
+    console.log("No such document!");
+  }
+};
 
 export const editContact = ({ id, name, phone, gender }, setEdit) => {
   try {
@@ -91,53 +97,51 @@ export const addContactItem = (addContact) => {
   }
 };
 
-//! ERİŞİM İZNİ FUNCTİON
-
-export const createUserWithMail = async({ username, email, password }, navigate) => {
-  console.log(username);
-  createUserWithEmailAndPassword(auth, email, password)
-    // .then((userCredential) => {
-    //   // eslint-disable-next-line
-    //   const user = userCredential.user;
-    //   user.displayName = user;
-    // })
-    // .catch((error) => {
-    //   // eslint-disable-next-line
-    //   const errorCode = error.code;
-    //   const errorMessage = error.message;
-    //   console.log(errorMessage);
-    //   // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
-    // });
-  
-    updateProfile(auth.currentUser, {
-      displayName: username,
-    })
-      // .then(() => {
-      //   // Profile updated!
-      //   // ...
-      // })
-      // .catch((error) => {
-        //   // An error occurred
-        //   // ...
-        // });
-        navigate("/");
-      };
-
-export const LoginWithMail = (
-  { email, password }, navigate
+//! auth functions
+export const createUserWithMail = async (
+  { username, email, password },
+  navigate
 ) => {
+  await createUserWithEmailAndPassword(auth, email, password);
+  // .then((userCredential) => {
+  //   // eslint-disable-next-line
+  //   const user = userCredential.user;
+
+  // })
+  // .catch((error) => {
+  //   // eslint-disable-next-line
+  //   const errorCode = error.code;
+  //   const errorMessage = error.message;
+  //   // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
+  // });
+  await updateProfile(auth.currentUser, {
+    displayName: username,
+  });
+  // .then((res) => {
+  //   console.log(res);
+  //   console.log(username);
+  // })
+  // .catch((error) => {
+  //   // An error occurred
+  //   // ...
+  // });
+  navigate("/");
+};
+
+export const LoginWithMail = ({ email, password }, navigate) => {
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // toastSuccessNotify("Login is succesfull...");
-
+      toastSuccessNotify("Login is succesfull...");
+      // dispatch(setUser({ email }));
       navigate("/dashboard");
+      console.log(userCredential);
     })
     .catch((error) => {
       const errorMessage = error.message;
-      console.log(errorMessage);
       // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
-      // toastErrorNotify(
-      //   errorMessage.split("/")[1].split("-").join(" ").replace(").", "")
+      toastErrorNotify(
+        errorMessage.split("/")[1].split("-").join(" ").replace(").", "")
+      );
     });
 };
 
@@ -166,7 +170,6 @@ export const LoginWithGoogle = (navigate) => {
       // The signed-in user info.
       // eslint-disable-next-line
       const user = result.user;
-
       navigate("/dashboard");
     })
     .catch((error) => {

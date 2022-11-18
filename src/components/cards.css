@@ -1,0 +1,9 @@
+.card-div {
+  border: 2px solid grey;
+  width: 15rem;
+  padding: 1rem;
+  margin: 1rem;
+}
+.film-img {
+  width: 13rem;
+}
