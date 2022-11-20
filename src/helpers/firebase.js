@@ -26,6 +26,8 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
+import { clearUser, setUser } from "../features/AuthSlice";
+import { setBlogList } from "../features/BlogSlice";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API_KEY,
@@ -47,11 +49,15 @@ const provider = new GoogleAuthProvider();
 
 //! database connetct functions
 
-export const useBlogListListener = (setBlogList) => {
+export const useBlogListListener = (dispatch) => {
   useEffect(() => {
     onSnapshot(contactRef, (snapshot) => {
-      setBlogList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      //console.log(snapshot.docs.map((doc) => doc.data()));
+      // setBlogList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+
+      dispatch(
+        setBlogList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })))
+      );
+      // return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     });
   }, []);
 };
@@ -66,37 +72,52 @@ export const getDataById = async (id) => {
     console.log("No such document!");
   }
 };
-
-export const editBlog = () => {
+export const editFavorite = (favorite, id) => {
+  const docRef = doc(db, "users", id);
   try {
-    // const docRef = doc(db, "users", id);
-    // updateDoc(docRef, { name, phone, gender });
+    updateDoc(docRef, {
+      favorite,
+    });
+  } catch (error) {}
+};
+
+export const editBlog = ({ title, picture }, id, navigate) => {
+  try {
+    const docRef = doc(db, "users", id);
+    updateDoc(docRef, {
+      title,
+      picture,
+      date: (" " + new Date()).slice(0, 25),
+    });
     toastSuccessNotify("Updated Successfully!");
+    navigate("/dashboard");
   } catch (error) {
     toastWarnNotify(error.message);
   }
 };
 
-export const deleteBlog = (id) => {
+export const deleteBlog = (id, navigate) => {
   try {
     deleteDoc(doc(db, "users", id));
     toastErrorNotify("Deleted Successfully");
+    navigate(-1);
   } catch (error) {
     toastWarnNotify(error.message);
   }
 };
 
-export const addBloggItem = ({ title, picture }, { name, email }) => {
+export const addBloggItem = ({ title, picture }, name, email, navigate) => {
   try {
     addDoc(contactRef, {
       title,
       picture,
-      date: new Date().getFullYear(),
+      date: (" " + new Date()).slice(0, 25),
       name,
       email,
+      favorite: false,
     });
     toastSuccessNotify("Added Successfully!");
-    console.log("çalıştı");
+    navigate("/dashboard");
   } catch (error) {
     toastWarnNotify(error.message);
   }
@@ -108,38 +129,22 @@ export const createUserWithMail = async (
   navigate
 ) => {
   await createUserWithEmailAndPassword(auth, email, password);
-  // .then((userCredential) => {
-  //   // eslint-disable-next-line
-  //   const user = userCredential.user;
 
-  // })
-  // .catch((error) => {
-  //   // eslint-disable-next-line
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message;
-  //   // setErr(errorMessage.split("/")[1].split("-").join(" ").replace(").", ""));
-  // });
   await updateProfile(auth.currentUser, {
     displayName: username,
   });
-  // .then((res) => {
-  //   console.log(res);
-  //   console.log(username);
-  // })
-  // .catch((error) => {
-  //   // An error occurred
-  //   // ...
-  // });
+
   navigate("/");
 };
 
-export const LoginWithMail = ({ email, password }, navigate) => {
+export const LoginWithMail = ({ email, password }, navigate, dispatch) => {
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       toastSuccessNotify("Login is succesfull...");
       // dispatch(setUser({ email }));
       navigate("/dashboard");
-      console.log(userCredential);
+
+      dispatch(setUser({ name: userCredential.user.displayName, email }));
     })
     .catch((error) => {
       const errorMessage = error.message;
@@ -150,13 +155,20 @@ export const LoginWithMail = ({ email, password }, navigate) => {
     });
 };
 
-export const IsLogin = (setNowUSer) => {
+export const IsLogin = (setUSerInfo) => {
   const auth = getAuth();
   onAuthStateChanged(auth, (user) => {
     if (user) {
       // eslint-disable-next-line
       const uid = user.uid;
-      setNowUSer({ name: user.displayName, email: user.email });
+      setUSerInfo({
+        name: user.displayName,
+        email: user.email,
+        creatTime: user.metadata.creationTime.replace("GMT", ""),
+        singupTime: user.metadata.lastSignInTime.replace("GMT", ""),
+      });
+      console.log(user);
+      // setNowUSer({ name: user.displayName, email: user.email });
     } else {
     }
   });
@@ -191,11 +203,11 @@ export const LoginWithGoogle = (navigate) => {
     });
 };
 
-export const singOut = (setNowUSer) => {
+export const singOut = (dispatch) => {
   const auth = getAuth();
   signOut(auth)
     .then(() => {
-      setNowUSer(null);
+      dispatch(clearUser());
     })
     .catch((error) => {
       // An error happened.

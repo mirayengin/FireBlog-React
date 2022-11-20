@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import BlogCard from "../components/BlogCard";
 import { useBlogListListener } from "../helpers/firebase";
 
 const Dashboard = () => {
-  const [blogList, setBlogList] = useState([]);
+  // const [blogList, setBlogList] = useState([]);
+  const dispatch = useDispatch();
+  const { blogList } = useSelector((state) => state.posts);
+  // useBlogListListener(setBlogList);
+  useBlogListListener(dispatch);
 
-  useBlogListListener(setBlogList);
   return (
-    <div sx={{ display: "flex", flexWrap: "wrap" }}>
+    <div className="dashboard">
       {blogList?.map((item) => {
         return <BlogCard key={item.id} {...item} />;
       })}

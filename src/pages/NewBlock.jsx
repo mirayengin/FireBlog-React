@@ -2,24 +2,34 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import React, { useEffect, useState } from "react";
 import { Button } from "@mui/material";
-import { addBloggItem, IsLogin } from "../helpers/firebase";
+import { addBloggItem, editBlog, IsLogin } from "../helpers/firebase";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const NewBlock = () => {
+  const { state: editData } = useLocation();
+  const navigate = useNavigate();
+  const { name, email } = useSelector((state) => state.auth);
   const [newPost, setNewPost] = useState({
-    title: "",
-    picture: "",
+    title: editData?.title || "",
+    picture: editData?.picture || "",
   });
-  const [nowUser, setNowUser] = useState();
 
   const handleClick = () => {
-    addBloggItem(newPost, nowUser);
+    if (editData?.edit) {
+      //   newPost = {
+      //     title: newPost.title || editData.title,
+      //     picture: newPost.picture || editData.picture,
+      //   };
+
+      editBlog(newPost, editData.id, navigate);
+    } else {
+      addBloggItem(newPost, name, email, navigate);
+    }
   };
   const handleChange = (e) => {
     setNewPost({ ...newPost, [e.target.name]: e.target.value });
   };
-  useEffect(() => {
-    IsLogin(setNowUser);
-  }, []);
 
   return (
     <Box
@@ -48,7 +58,7 @@ const NewBlock = () => {
             name="title"
             type="text"
             variant="outlined"
-            //   value={values.content}
+            value={newPost?.title}
             onChange={handleChange}
             //   onBlur={handleBlur}
             //   error={touched.content && Boolean(errors.content)}
@@ -74,18 +84,12 @@ const NewBlock = () => {
             id="outlined-error-helper-text"
             name="picture"
             label="Error"
-            // value={image}
+            value={newPost?.picture}
             onChange={handleChange}
           />
         </Box>
         <Box>
-          <Button
-            variant="contained"
-            sx={{ marginLeft: "1rem", marginTop: "1rem" }}
-            onClick={handleClick}
-          >
-            Contained
-          </Button>
+          <button onClick={handleClick}>Save</button>
         </Box>
       </div>
     </Box>
